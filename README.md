@@ -9,81 +9,61 @@ PC installed with SCILAB.
 
 ## PROGRAM : 
 ```
-clc;
-clear;
-close;
+# ================================
+# INSTALL REQUIREMENTS
+# ================================
+!pip -q install SpeechRecognition pydub
+!apt-get -qq install ffmpeg
 
-disp("Loading audio files...");
+# ================================
+# IMPORT LIBRARIES
+# ================================
+import speech_recognition as sr
+from google.colab import files
+from pydub import AudioSegment
 
-// ---- Read audio files ----
-[y1, fs1] = wavread("C:\Users\acer\Downloads\referance.wav");
-[y2, fs2] = wavread("C:\Users\acer\Downloads\test.wav");
+# ================================
+# UPLOAD AUDIO FILE
+# ================================
+print("📁 Upload audio file (MP3 or WAV)")
+uploaded = files.upload()
 
-// ---- Check sampling rate ----
-if fs1 <> fs2 then
-    error("Sampling rates must match!");
-end
+audio_file = list(uploaded.keys())[0]
 
-// ---- Convert to mono if stereo ----
-if size(y1,2) == 2 then
-    y1 = mean(y1, 2);
-end
-if size(y2,2) == 2 then
-    y2 = mean(y2, 2);
-end
+# ================================
+# CONVERT TO WAV (IF MP3)
+# ================================
+if audio_file.endswith(".mp3"):
+    print("🔄 Converting MP3 to WAV...")
+    sound = AudioSegment.from_mp3(audio_file)
+    audio_file = "converted.wav"
+    sound.export(audio_file, format="wav")
 
-// ---- Make same length ----
-n = min(length(y1), length(y2));
-y1 = y1(1:n);
-y2 = y2(1:n);
+# ================================
+# SPEECH TO TEXT
+# ================================
+recognizer = sr.Recognizer()
 
-// ---- Normalize signals (IMPORTANT) ----
-y1 = y1 / max(abs(y1));
-y2 = y2 / max(abs(y2));
+with sr.AudioFile(audio_file) as source:
+    audio_data = recognizer.record(source)
 
-// ---- Euclidean Distance ----
-dist = sqrt(sum((y1 - y2).^2));
-disp("Euclidean distance = " + string(dist));
+# ================================
+# CONVERT AUDIO TO TEXT
+# ================================
+try:
+    text = recognizer.recognize_google(audio_data)
+    print("\n🎯 Converted Text:\n", text)
 
-// ---- Decision ----
-if dist < 0.5 then
-    disp("✅ Matching with reference (same word)");
-else
-    disp("❌ Not matching with reference (different word)");
-end
+except sr.UnknownValueError:
+    print("\n❌ Could not understand audio")
 
-// ---- Plot individual signals ----
-figure(0);
-
-subplot(2,1,1);
-plot(y1);
-title("REFERENCE VOICE SIGNAL");
-xlabel("Samples");
-ylabel("Amplitude");
-
-subplot(2,1,2);
-plot(y2);
-title("TEST VOICE SIGNAL");
-xlabel("Samples");
-ylabel("Amplitude");
-
-// ---- Overlay comparison ----
-figure(1);
-plot(y1, 'b');                 // Reference
-xset("auto clear", "off");     // IMPORTANT
-plot(y2, 'r');                 // Test
-
-title("Reference (Blue) vs Test (Red)");
-xlabel("Samples");
-ylabel("Amplitude");
-legend(["Reference", "Test"]);
-
-// ---- Done ----
-disp("Waveforms plotted and compared successfully.");
+except sr.RequestError:
+    print("\n❌ API error (Check internet)")
 ```
 
 ## OUTPUT: 
 
+<img width="1599" height="1390" alt="image" src="https://github.com/user-attachments/assets/ceaf3ba1-5301-44cc-ad0c-0ae2279fae8a" />
 
 ## RESULT: 
 Thus the speech recognition using SCILAB was performed and verified.
