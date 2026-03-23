@@ -63,7 +63,7 @@ except sr.RequestError:
 
 ## OUTPUT: 
 
-<img width="1599" height="1390" alt="image" src="https://github.com/user-attachments/assets/ceaf3ba1-5301-44cc-ad0c-0ae2279fae8a" />
+<img width="1599" height="690" alt="image" src="https://github.com/user-attachments/assets/ceaf3ba1-5301-44cc-ad0c-0ae2279fae8a" />
 
 ## RESULT: 
 Thus the speech recognition using SCILAB was performed and verified.
